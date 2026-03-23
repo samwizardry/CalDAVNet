@@ -117,7 +117,8 @@ class Program
         var calendarResponseCollection = await client.GetCalendarsAsync(principal.CalendarHomeSet!,
             BodyHelper.Propfind(
                 [],
-                [XNames.ResourceType, XNames.GetCtag, XNames.SyncToken, XNames.SupportedCalendarComponentSet, XNames.DisplayName, XNames.CurrentUserPrivilegeSet]));
+                //[XNames.ResourceType, XNames.GetCtag, XNames.SyncToken, XNames.SupportedCalendarComponentSet, XNames.DisplayName, XNames.CurrentUserPrivilegeSet],
+                [XNames.AllProp]));
 
         Console.WriteLine();
         if (calendarResponseCollection.Count > 0)
