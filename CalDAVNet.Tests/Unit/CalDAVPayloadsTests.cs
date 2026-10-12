@@ -166,14 +166,4 @@ public class CalDAVPayloadsTests
         prop.Element(XNames.CalendarDescription).Should().BeNull();
         prop.Element(XNames.CalendarColor).Should().BeNull();
     }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-    [Fact]
-    public void BodyHelper_BackwardCompatibility_CallsCalDAVPayloads()
-    {
-        var doc = BodyHelper.AllPropPropfind();
-        doc.Root!.Name.Should().Be(XNames.Propfind);
-        doc.Root.Element(XNames.AllProp).Should().NotBeNull();
-    }
-#pragma warning restore CS0618
 }

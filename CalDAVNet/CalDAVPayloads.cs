@@ -178,37 +178,3 @@ public static class CalDAVPayloads
         return new XDocument(new XDeclaration("1.0", "UTF-8", null), mkcalendar);
     }
 }
-
-[Obsolete("Use CalDAVPayloads instead.")]
-public static class BodyHelper
-{
-    public static XDocument Propfind(IEnumerable<XName> propfindNames)
-        => CalDAVPayloads.Propfind(propfindNames);
-
-    public static XDocument Propfind(IEnumerable<XName> propfindNames, IEnumerable<XName> propNames)
-        => CalDAVPayloads.Propfind(propfindNames, propNames);
-
-    public static XDocument PropPropfind(IEnumerable<XName> propNames)
-        => CalDAVPayloads.PropPropfind(propNames);
-
-    public static XDocument AllPropPropfind()
-        => CalDAVPayloads.AllPropPropfind();
-
-    public static XDocument CurrentUserPrincipalPropfind()
-        => CalDAVPayloads.CurrentUserPrincipalPropfind();
-
-    public static XDocument SyncCollection(string? syncToken = null)
-        => CalDAVPayloads.SyncCollection(syncToken);
-
-    public static XDocument CalendarQuery(XElement filter)
-        => CalDAVPayloads.CalendarQuery(filter);
-
-    public static XDocument CalendarMultiget(string href)
-        => CalDAVPayloads.CalendarMultiget(href);
-
-    public static XDocument CalendarMultiget(IEnumerable<string> hrefs)
-        => CalDAVPayloads.CalendarMultiget(hrefs);
-
-    public static XDocument Mkcalendar(string displayName, string supportedComponent, string? description = null, string? color = null)
-        => CalDAVPayloads.Mkcalendar(displayName, supportedComponent, description, color);
-}

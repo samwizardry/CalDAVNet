@@ -144,10 +144,10 @@ public class ModelTests
         @event.Etag.Should().Be("\"etag-1\"");
         @event.CalendarData.Should().Be(ics);
         @event.ICalCalendar.Should().NotBeNull();
-        @event.ICalEvent.Should().NotBeNull();
-        @event.ICalEvent!.Summary.Should().Be("Unit Test Event");
-        @event.ICalEvent.Description.Should().Be("Test Event Description");
-        @event.ICalEvent.Uid.Should().Be("test-uid-123");
+        @event.MasterEvent.Should().NotBeNull();
+        @event.MasterEvent!.Summary.Should().Be("Unit Test Event");
+        @event.MasterEvent.Description.Should().Be("Test Event Description");
+        @event.MasterEvent.Uid.Should().Be("test-uid-123");
     }
 
     [Fact]
@@ -158,7 +158,62 @@ public class ModelTests
 
         @event.CalendarData.Should().BeNull();
         @event.ICalCalendar.Should().BeNull();
-        @event.ICalEvent.Should().BeNull();
+        @event.MasterEvent.Should().BeNull();
+    }
+
+    [Fact]
+    public void Event_WithRecurringEventExceptions_ParsesMasterEventAndRecurrenceExceptionsSuccessfully()
+    {
+        // In RFC 5545, recurring events with modified exception instances contain multiple VEVENT blocks in one .ics
+        var recurringIcsWithException = """
+            BEGIN:VCALENDAR
+            VERSION:2.0
+            PRODID:-//Example Corp.//EN
+            BEGIN:VEVENT
+            UID:recurring-standup-1
+            DTSTART:20261012T100000Z
+            DTEND:20261012T110000Z
+            RRULE:FREQ=DAILY;COUNT=5
+            SUMMARY:Daily Standup
+            END:VEVENT
+            BEGIN:VEVENT
+            UID:recurring-standup-1
+            RECURRENCE-ID:20261013T100000Z
+            DTSTART:20261013T140000Z
+            DTEND:20261013T150000Z
+            SUMMARY:Daily Standup (Rescheduled)
+            END:VEVENT
+            END:VCALENDAR
+            """;
+
+        var props = new Dictionary<XName, PropResponse>
+        {
+            [XNames.CalendarData] = new PropResponse(new XElement(XNames.CalendarData, recurringIcsWithException), 200)
+        };
+
+        var item = new MultistatusItem("/cal/recurring.ics", props);
+        var @event = new Event(item);
+
+        @event.IsRecurring.Should().BeTrue();
+        @event.MasterEvent.Should().NotBeNull();
+        @event.MasterEvent!.Summary.Should().Be("Daily Standup");
+        @event.ICalEvents.Should().HaveCount(2);
+
+        var exceptions = @event.RecurrenceExceptions.ToList();
+        exceptions.Should().ContainSingle();
+        exceptions[0].Summary.Should().Be("Daily Standup (Rescheduled)");
+        exceptions[0].RecurrenceIdentifier.Should().NotBeNull();
+
+        // All occurrences (COUNT=5)
+        var allOccurrences = @event.GetOccurrences().ToList();
+        allOccurrences.Should().HaveCount(5);
+
+        // Filtered occurrences within 3-day window
+        var limitedOccurrences = @event.GetOccurrences(
+            new DateTime(2026, 10, 12, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(2026, 10, 14, 23, 59, 59, DateTimeKind.Utc)).ToList();
+        limitedOccurrences.Should().HaveCount(3);
+        ((Ical.Net.CalendarComponents.CalendarEvent)limitedOccurrences[1].Source).Summary.Should().Be("Daily Standup (Rescheduled)");
     }
 
     [Fact]

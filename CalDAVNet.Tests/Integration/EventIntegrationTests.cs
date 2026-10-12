@@ -73,25 +73,25 @@ public class EventIntegrationTests
         var getResponse = await client.GetEventAsync(defaultCal.Href, eventHref);
         getResponse.IsSuccess.Should().BeTrue();
         getResponse.Event.Should().NotBeNull();
-        getResponse.Event!.ICalEvent.Should().NotBeNull();
-        getResponse.Event.ICalEvent!.Summary.Should().Be($"Integration Event {uid}");
+        getResponse.Event!.MasterEvent.Should().NotBeNull();
+        getResponse.Event.MasterEvent!.Summary.Should().Be($"Integration Event {uid}");
         getResponse.Event.Etag.Should().NotBeNullOrWhiteSpace();
 
         // 3. Update
         var etag = getResponse.Event.Etag!;
-        getResponse.Event.ICalEvent.Summary = $"Updated Event {uid}";
+        getResponse.Event.MasterEvent.Summary = $"Updated Event {uid}";
         var updatedIcs = Serializer.SerializeToString(getResponse.Event.ICalCalendar)!;
         await client.UpdateEventAsync(eventHref, etag, updatedIcs);
 
         // 4. Verify update
         var updatedResponse = await client.GetEventAsync(defaultCal.Href, eventHref);
         updatedResponse.IsSuccess.Should().BeTrue();
-        updatedResponse.Event!.ICalEvent!.Summary.Should().Be($"Updated Event {uid}");
+        updatedResponse.Event!.MasterEvent!.Summary.Should().Be($"Updated Event {uid}");
 
         // 5. Multiget query
         var multigetResponse = await client.GetEventsAsync(defaultCal.Href, CalDAVPayloads.CalendarMultiget([eventHref]));
         multigetResponse.Count.Should().Be(1);
-        multigetResponse[0].Event!.ICalEvent!.Summary.Should().Be($"Updated Event {uid}");
+        multigetResponse[0].Event!.MasterEvent!.Summary.Should().Be($"Updated Event {uid}");
 
         // 6. Delete
         var latestEtag = updatedResponse.Event.Etag ?? etag;

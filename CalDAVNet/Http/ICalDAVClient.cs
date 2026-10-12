@@ -38,7 +38,7 @@ public interface ICalDAVClient
     /// Retrieves a collection of calendars.
     /// </summary>
     /// <param name="href">Principal calendar home set.</param>
-    /// <param name="body"><see cref="BodyHelper.PropPropfind(IEnumerable{XName})"/> body.</param>
+    /// <param name="body"><see cref="CalDAVPayloads.PropPropfind(IEnumerable{XName})"/> body.</param>
     /// <exception cref="HttpRequestException"></exception>
     Task<ClientResponseCollection<GetCalendarResponse>> GetCalendarsAsync(string href, XDocument body, CancellationToken cancellationToken = default);
 
@@ -46,7 +46,7 @@ public interface ICalDAVClient
     /// Retrieves a calendar.
     /// </summary>
     /// <param name="href">Calendar href.</param>
-    /// <param name="body"><see cref="BodyHelper.PropPropfind(IEnumerable{XName})"/> body.</param>
+    /// <param name="body"><see cref="CalDAVPayloads.PropPropfind(IEnumerable{XName})"/> body.</param>
     /// <exception cref="HttpRequestException"></exception>
     Task<GetCalendarResponse> GetCalendarAsync(string href, XDocument body, CancellationToken cancellationToken = default);
 
@@ -54,7 +54,7 @@ public interface ICalDAVClient
     /// Creates a calendar.
     /// </summary>
     /// <param name="href">Target calendar href to create.</param>
-    /// <param name="body"><see cref="BodyHelper.Mkcalendar(string, string, string?, string?)"/> body.</param>
+    /// <param name="body"><see cref="CalDAVPayloads.Mkcalendar(string, string, string?, string?)"/> body.</param>
     Task CreateCalendarAsync(string href, XDocument body, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -62,21 +62,21 @@ public interface ICalDAVClient
     /// </summary>
     /// <param name="href">Calendar href.</param>
     /// <param name="ctag">Calendar version.</param>
-    /// <param name="body"><see cref="BodyHelper.PropertyUpdate(string?, string?, string?)"/> body.</param>
+    /// <param name="body"><see cref="CalDAVPayloads.PropertyUpdate(string?, string?, string?)"/> body.</param>
     Task UpdateCalendarAsync(string href, string ctag, XDocument body, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a collection of events.
     /// </summary>
     /// <param name="href">Calendar href.</param>
-    /// <param name="body"><see cref="BodyHelper.CalendarMultiget(IEnumerable{string})"/> or <see cref="BodyHelper.CalendarQuery(XElement)"/> body.</param>
+    /// <param name="body"><see cref="CalDAVPayloads.CalendarMultiget(IEnumerable{string})"/> or <see cref="CalDAVPayloads.CalendarQuery(XElement)"/> body.</param>
     Task<ClientResponseCollection<GetEventResponse>> GetEventsAsync(string href, XDocument body, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves an event.
     /// </summary>
     /// <param name="href">Calendar href.</param>
-    /// <param name="body"><see cref="BodyHelper.CalendarMultiget(string)"/> body.</param>
+    /// <param name="body"><see cref="CalDAVPayloads.CalendarMultiget(string)"/> body.</param>
     Task<GetEventResponse> GetEventAsync(string href, XDocument body, CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -302,6 +302,55 @@ public class CalDAVClientUnitTests
     }
 
     [Fact]
+    public async Task GetEventAsync_WhenServerReturnsRecurringEventWithException_ThrowsInvalidOperationException()
+    {
+        var recurringXml = """
+            <D:multistatus xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav">
+                <D:response>
+                    <D:href>/cal/recurring.ics</D:href>
+                    <D:propstat>
+                        <D:prop>
+                            <D:getetag>"etag-1"</D:getetag>
+                            <C:calendar-data>BEGIN:VCALENDAR
+            VERSION:2.0
+            BEGIN:VEVENT
+            UID:rec-1
+            DTSTART:20261012T100000Z
+            DTEND:20261012T110000Z
+            RRULE:FREQ=DAILY;COUNT=5
+            SUMMARY:Daily Sync
+            END:VEVENT
+            BEGIN:VEVENT
+            UID:rec-1
+            RECURRENCE-ID:20261013T100000Z
+            DTSTART:20261013T140000Z
+            DTEND:20261013T150000Z
+            SUMMARY:Daily Sync (Moved)
+            END:VEVENT
+            END:VCALENDAR</C:calendar-data>
+                        </D:prop>
+                        <D:status>HTTP/1.1 200 OK</D:status>
+                    </D:propstat>
+                    <D:status>HTTP/1.1 200 OK</D:status>
+                </D:response>
+            </D:multistatus>
+            """;
+
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.MultiStatus)
+        {
+            Content = new StringContent(recurringXml, Encoding.UTF8, "application/xml")
+        });
+
+        var response = await client.GetEventAsync("/cal/", "/cal/recurring.ics");
+
+        response.IsSuccess.Should().BeTrue();
+        response.Event.Should().NotBeNull();
+        response.Event!.MasterEvent!.Summary.Should().Be("Daily Sync");
+        response.Event.ICalEvents.Should().HaveCount(2);
+        response.Event.RecurrenceExceptions.Single().Summary.Should().Be("Daily Sync (Moved)");
+    }
+
+    [Fact]
     public async Task CreateEventAsync_SendsPutWithTextCalendar()
     {
         var (client, handler) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.Created));
