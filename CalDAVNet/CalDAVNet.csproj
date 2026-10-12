@@ -6,16 +6,31 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 
-    <Version>1.0.1</Version>
-    <Authors>itagiev</Authors>
+    <!-- Package Metadata -->
+    <Version>1.1.0</Version>
+    <Authors>samwizardry</Authors>
     <Product>CalDAVNet</Product>
     <PackageId>CalDAVNet</PackageId>
-    <Title>CalDAV Net Client Library</Title>
-    <Description>A lightweight .NET client library for working with CalDAV calendars.</Description>
-    <PackageTags>caldav calendar webdav sync</PackageTags>
-    <RepositoryUrl>https://github.com/itagiev/CalDAVNet</RepositoryUrl>
+    <Title>CalDAVNet</Title>
+    <Description>A lightweight, asynchronous .NET client library for communicating with CalDAV servers (Yandex, Google, Nextcloud, Apple, etc.) compliant with CalDAV (RFC 4791), WebDAV (RFC 4918), and iCalendar (RFC 5545).</Description>
+    <PackageTags>caldav;calendar;webdav;icalendar;sync;events;aspnetcore</PackageTags>
+    <PackageProjectUrl>https://github.com/samwizardry/CalDAVNet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/samwizardry/CalDAVNet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Symbols & Documentation -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591;1570;1572;1573;1574</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.12" />

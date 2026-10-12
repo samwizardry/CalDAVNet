@@ -62,7 +62,7 @@ public interface ICalDAVClient
     /// </summary>
     /// <param name="href">Calendar href.</param>
     /// <param name="ctag">Calendar version.</param>
-    /// <param name="body"><see cref="CalDAVPayloads.PropertyUpdate(string?, string?, string?)"/> body.</param>
+    /// <param name="body"><see cref="PropertyUpdateBuilder"/> body.</param>
     Task UpdateCalendarAsync(string href, string ctag, XDocument body, CancellationToken cancellationToken = default);
 
     /// <summary>

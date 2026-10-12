@@ -12,28 +12,28 @@ public enum CurrentUserPrivilegeSet : int
     None = 0,
 
     /// <summary>
-    /// <D:read/> (DAV:)
+    /// &lt;D:read/&gt; (DAV:)
     /// View calendar (list of events, depends on event visibility).
     /// Almost always present, even for guest / read-only access.
     /// </summary>
     Read = 1 << 0,
 
     /// <summary>
-    /// <D:read-free-busy/> (urn:ietf:params:xml:ns:caldav)
+    /// &lt;D:read-free-busy/&gt; (urn:ietf:params:xml:ns:caldav)
     /// Access to free/busy information only (busy/free status), without event details.
     /// Rarely returned separately; usually appears together with Read.
     /// </summary>
     ReadFreeBusy = 1 << 1,
 
     /// <summary>
-    /// <D:write/> (DAV:)
+    /// &lt;D:write/&gt; (DAV:)
     /// Full editing: create, modify, delete events + modify calendar properties.
     /// Typically granted to the calendar owner.
     /// </summary>
     Write = 1 << 2,
 
     /// <summary>
-    /// <D:write-content/> (DAV:)
+    /// &lt;D:write-content/&gt; (DAV:)
     /// Modify calendar content (events), but not collection properties
     /// (e.g. display name, color, description).
     /// Often appears together with Write.
@@ -41,42 +41,42 @@ public enum CurrentUserPrivilegeSet : int
     WriteContent = 1 << 3,
 
     /// <summary>
-    /// <D:write-properties/> (DAV:)
+    /// &lt;D:write-properties/&gt; (DAV:)
     /// Modify calendar metadata (displayname, color, description, etc.).
     /// Usually granted only to the owner.
     /// </summary>
     WriteProperties = 1 << 4,
 
     /// <summary>
-    /// <D:bind/> (DAV:)
+    /// &lt;D:bind/&gt; (DAV:)
     /// Add resources (events) to the collection.
     /// Conceptually part of Write; typically present for the owner.
     /// </summary>
     Bind = 1 << 5,
 
     /// <summary>
-    /// <D:unbind/> (DAV:)
+    /// &lt;D:unbind/&gt; (DAV:)
     /// Remove resources (events) from the collection.
     /// Conceptually part of Write; typically present for the owner.
     /// </summary>
     Unbind = 1 << 6,
 
     /// <summary>
-    /// <D:read-acl/> (DAV:)
+    /// &lt;D:read-acl/&gt; (DAV:)
     /// Read ACL (access control list).
     /// Rarely available; in Yandex CalDAV usually not fully supported.
     /// </summary>
     ReadAcl = 1 << 7,
 
     /// <summary>
-    /// <D:write-acl/> (DAV:)
+    /// &lt;D:write-acl/&gt; (DAV:)
     /// Modify access control rules.
     /// Not supported in Yandex CalDAV.
     /// </summary>
     WriteAcl = 1 << 8,
 
     /// <summary>
-    /// <D:all/> (DAV:)
+    /// &lt;D:all/&gt; (DAV:)
     /// Aggregate of all possible privileges.
     /// Very rarely returned explicitly.
     /// </summary>
