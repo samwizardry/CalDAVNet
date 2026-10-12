@@ -30,7 +30,8 @@ public static class HttpRequestMessageExtensions
     /// <returns></returns>
     public static HttpRequestMessage WithVersion(this HttpRequestMessage request, string version)
     {
-        request.Headers.Add("If-Match", $"\"{version}\"");
+        var cleanVersion = version.Trim('\"');
+        request.Headers.Add("If-Match", $"\"{cleanVersion}\"");
         return request;
     }
 }

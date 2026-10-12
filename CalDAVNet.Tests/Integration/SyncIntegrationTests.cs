@@ -21,7 +21,7 @@ public class SyncIntegrationTests
         var upn = await client.GetPrincipalNameAsync();
         var principal = await client.GetPrincipalAsync(upn.PrincipalName!);
         var calendars = await client.GetCalendarsAsync(principal.Principal!.CalendarHomeSet!,
-            BodyHelper.Propfind([XNames.ResourceType, XNames.DisplayName, XNames.GetCtag]));
+            CalDAVPayloads.Propfind([XNames.ResourceType, XNames.DisplayName, XNames.GetCtag]));
         var defaultCal = calendars.First(c => c.IsSuccess).Calendar!;
 
         var initialSync = await client.SyncCalendarItemsAsync(defaultCal.Href, null);

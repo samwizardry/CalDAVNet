@@ -172,11 +172,11 @@ public class Calendar
                             break;
 
                         case Constants.DAV.WriteAcl:
-                            _currentUserPrivilegeSet |= CurrentUserPrivilegeSet.ReadAcl;
+                            _currentUserPrivilegeSet |= CurrentUserPrivilegeSet.WriteAcl;
                             break;
 
                         case Constants.DAV.All:
-                            _currentUserPrivilegeSet |= CurrentUserPrivilegeSet.Read;
+                            _currentUserPrivilegeSet |= CurrentUserPrivilegeSet.All;
                             break;
                         default: break;
                     }

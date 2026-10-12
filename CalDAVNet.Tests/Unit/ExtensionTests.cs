@@ -36,14 +36,16 @@ public class ExtensionTests
         request.Headers.GetValues("Depth").Should().Contain("1");
     }
 
-    [Fact]
-    public void HttpRequestMessageExtensions_WithVersion_SetsIfMatchHeader()
+    [Theory]
+    [InlineData("ctag-123", "\"ctag-123\"")]
+    [InlineData("\"ctag-123\"", "\"ctag-123\"")]
+    public void HttpRequestMessageExtensions_WithVersion_SetsIfMatchHeaderWithSingleQuotes(string inputVersion, string expectedHeader)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, "https://example.com");
-        request.WithVersion("ctag-123");
+        request.WithVersion(inputVersion);
 
         request.Headers.Contains("If-Match").Should().BeTrue();
-        request.Headers.GetValues("If-Match").Should().Contain("\"ctag-123\"");
+        request.Headers.GetValues("If-Match").Should().Contain(expectedHeader);
     }
 
     [Fact]

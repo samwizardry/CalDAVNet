@@ -87,6 +87,8 @@ public class ModelTests
         calendar.CurrentUserPrivilegeSet.Should().HaveFlag(CurrentUserPrivilegeSet.Bind);
         calendar.CurrentUserPrivilegeSet.Should().HaveFlag(CurrentUserPrivilegeSet.Unbind);
         calendar.CurrentUserPrivilegeSet.Should().HaveFlag(CurrentUserPrivilegeSet.ReadAcl);
+        calendar.CurrentUserPrivilegeSet.Should().HaveFlag(CurrentUserPrivilegeSet.WriteAcl);
+        calendar.CurrentUserPrivilegeSet.Should().HaveFlag(CurrentUserPrivilegeSet.All);
     }
 
     [Fact]

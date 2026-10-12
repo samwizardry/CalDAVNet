@@ -35,7 +35,7 @@ public class CalDAVClient : ICalDAVClient
     {
         var request = new HttpRequestMessage(ICalDAVClient.Propfind, "")
         {
-            Content = BodyHelper.CurrentUserPrincipalPropfind().ToStringContent()
+            Content = CalDAVPayloads.CurrentUserPrincipalPropfind().ToStringContent()
         }
         .WithDepth(0)
         .WithPrefer("return-minimal");
@@ -47,7 +47,7 @@ public class CalDAVClient : ICalDAVClient
 
     public async Task<GetPrincipalResponse> GetPrincipalAsync(string upn, CancellationToken cancellationToken = default)
     {
-        var body = BodyHelper.AllPropPropfind();
+        var body = CalDAVPayloads.AllPropPropfind();
 
         var request = new HttpRequestMessage(ICalDAVClient.Propfind, upn)
         {
@@ -110,7 +110,7 @@ public class CalDAVClient : ICalDAVClient
 
     public Task CreateCalendarAsync(string href, XDocument body, CancellationToken cancellationToken = default)
     {
-        var request = new HttpRequestMessage(ICalDAVClient.Mkcalendar, $"{href}events/")
+        var request = new HttpRequestMessage(ICalDAVClient.Mkcalendar, href)
         {
             Content = body.ToStringContent()
         }
@@ -169,7 +169,7 @@ public class CalDAVClient : ICalDAVClient
 
     public Task<GetEventResponse> GetEventAsync(string calendarHref, string eventHref,
         CancellationToken cancellationToken = default)
-        => GetEventAsync(calendarHref, BodyHelper.CalendarMultiget(eventHref), cancellationToken);
+        => GetEventAsync(calendarHref, CalDAVPayloads.CalendarMultiget(eventHref), cancellationToken);
 
     public Task CreateEventAsync(string href, string body, CancellationToken cancellationToken = default)
     {
@@ -207,7 +207,7 @@ public class CalDAVClient : ICalDAVClient
     {
         var request = new HttpRequestMessage(ICalDAVClient.Report, href)
         {
-            Content = BodyHelper.SyncCollection(syncToken).ToStringContent()
+            Content = CalDAVPayloads.SyncCollection(syncToken).ToStringContent()
         }
         .WithDepth(1)
         .WithPrefer("return-minimal");

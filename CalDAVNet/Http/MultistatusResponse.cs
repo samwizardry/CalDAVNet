@@ -33,12 +33,17 @@ public class MultistatusResponse : IEnumerable<MultistatusItem>
             {
                 foreach (var p in prop.Elements())
                 {
-                    properties.Add(p.Name, new PropResponse(p, statusCode));
+                    if (!properties.TryGetValue(p.Name, out var existing) || !existing.IsSuccessStatusCode)
+                    {
+                        properties[p.Name] = new PropResponse(p, statusCode);
+                    }
                 }
             }
         }
 
-        return new MultistatusItem(response.Element(XNames.Href)!.Value,
+        string href = response.Element(XNames.Href)?.Value ?? string.Empty;
+
+        return new MultistatusItem(href,
             properties,
             response.GetStatusCodeOrDefault(200));
     }

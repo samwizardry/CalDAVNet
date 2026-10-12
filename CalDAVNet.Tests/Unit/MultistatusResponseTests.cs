@@ -111,4 +111,45 @@ public class MultistatusResponseTests
         var failedProp = new PropResponse(propEl, 403);
         failedProp.IsSuccessStatusCode.Should().BeFalse();
     }
+
+    [Fact]
+    public void MultistatusResponse_HandlesDuplicateProperties_PrefersSuccess()
+    {
+        var xml = """
+            <D:multistatus xmlns:D="DAV:">
+                <D:response>
+                    <D:href>/cal/</D:href>
+                    <D:propstat>
+                        <D:prop><D:displayname>Failed Name</D:displayname></D:prop>
+                        <D:status>HTTP/1.1 404 Not Found</D:status>
+                    </D:propstat>
+                    <D:propstat>
+                        <D:prop><D:displayname>Good Name</D:displayname></D:prop>
+                        <D:status>HTTP/1.1 200 OK</D:status>
+                    </D:propstat>
+                </D:response>
+            </D:multistatus>
+            """;
+
+        var response = new MultistatusResponse(xml);
+        var item = response.Single();
+        item.Properties[XNames.DisplayName].IsSuccessStatusCode.Should().BeTrue();
+        item.Properties[XNames.DisplayName].Prop.Value.Should().Be("Good Name");
+    }
+
+    [Fact]
+    public void MultistatusResponse_HandlesMissingHref_WithoutException()
+    {
+        var xml = """
+            <D:multistatus xmlns:D="DAV:">
+                <D:response>
+                    <D:status>HTTP/1.1 200 OK</D:status>
+                </D:response>
+            </D:multistatus>
+            """;
+
+        var response = new MultistatusResponse(xml);
+        var item = response.Single();
+        item.Href.Should().BeEmpty();
+    }
 }

@@ -22,7 +22,7 @@ public class CalendarIntegrationTests
         var principal = await client.GetPrincipalAsync(upn.PrincipalName!);
 
         var calendars = await client.GetCalendarsAsync(principal.Principal!.CalendarHomeSet!,
-            BodyHelper.Propfind([XNames.ResourceType, XNames.GetCtag, XNames.DisplayName, XNames.CurrentUserPrivilegeSet]));
+            CalDAVPayloads.Propfind([XNames.ResourceType, XNames.GetCtag, XNames.DisplayName, XNames.CurrentUserPrivilegeSet]));
 
         calendars.OverallResult.Should().Be(ClientResult.Success);
         calendars.Should().NotBeEmpty();
@@ -42,11 +42,11 @@ public class CalendarIntegrationTests
         var principal = await client.GetPrincipalAsync(upn.PrincipalName!);
 
         var calendars = await client.GetCalendarsAsync(principal.Principal!.CalendarHomeSet!,
-            BodyHelper.Propfind([XNames.AllProp]));
+            CalDAVPayloads.Propfind([XNames.AllProp]));
         var firstCal = calendars.First(c => c.IsSuccess).Calendar!;
 
         var singleCalResponse = await client.GetCalendarAsync(firstCal.Href,
-            BodyHelper.Propfind([XNames.ResourceType, XNames.GetCtag, XNames.SyncToken, XNames.DisplayName]));
+            CalDAVPayloads.Propfind([XNames.ResourceType, XNames.GetCtag, XNames.SyncToken, XNames.DisplayName]));
 
         singleCalResponse.IsSuccess.Should().BeTrue();
         singleCalResponse.Calendar.Should().NotBeNull();
@@ -65,11 +65,12 @@ public class CalendarIntegrationTests
         var homeSet = principal.Principal!.CalendarHomeSet!;
 
         string calendarName = "test-cal-" + Guid.NewGuid().ToString("N")[..8];
-        var mkcalendarBody = BodyHelper.Mkcalendar(calendarName, Constants.Comp.VEVENT, "Automated test calendar", "#ff0000");
+        var calendarHref = $"{homeSet}{calendarName}/";
+        var mkcalendarBody = CalDAVPayloads.Mkcalendar(calendarName, Constants.Comp.VEVENT, "Automated test calendar", "#ff0000");
 
         try
         {
-            await client.CreateCalendarAsync(homeSet, mkcalendarBody);
+            await client.CreateCalendarAsync(calendarHref, mkcalendarBody);
         }
         catch (HttpRequestException ex)
         {
@@ -80,7 +81,7 @@ public class CalendarIntegrationTests
 
         // Find the created calendar
         var calendars = await client.GetCalendarsAsync(homeSet,
-            BodyHelper.Propfind([XNames.ResourceType, XNames.DisplayName, XNames.GetCtag]));
+            CalDAVPayloads.Propfind([XNames.ResourceType, XNames.DisplayName, XNames.GetCtag]));
 
         var created = calendars.FirstOrDefault(c => c.IsSuccess && c.Calendar?.DisplayName == calendarName)?.Calendar;
         if (created is not null)

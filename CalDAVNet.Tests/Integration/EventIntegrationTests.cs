@@ -22,7 +22,7 @@ public class EventIntegrationTests
         var upn = await client.GetPrincipalNameAsync();
         var principal = await client.GetPrincipalAsync(upn.PrincipalName!);
         var calendars = await client.GetCalendarsAsync(principal.Principal!.CalendarHomeSet!,
-            BodyHelper.Propfind([XNames.ResourceType, XNames.DisplayName, XNames.GetCtag]));
+            CalDAVPayloads.Propfind([XNames.ResourceType, XNames.DisplayName, XNames.GetCtag]));
         var defaultCal = calendars.First(c => c.IsSuccess).Calendar!;
         return (client, defaultCal);
     }
@@ -36,10 +36,9 @@ public class EventIntegrationTests
 
         var filter = new FilterBuilder()
             .AddCompFilter(new CompFilterBuilder(Constants.Comp.VEVENT)
-                .AddTimeRange(DateTime.UtcNow.AddMonths(-6), DateTime.UtcNow.AddMonths(1))
-                .ToXElement);
+                .AddTimeRange(DateTime.UtcNow.AddMonths(-6), DateTime.UtcNow.AddMonths(1)));
 
-        var events = await client.GetEventsAsync(defaultCal.Href, BodyHelper.CalendarQuery(filter.ToXElement));
+        var events = await client.GetEventsAsync(defaultCal.Href, CalDAVPayloads.CalendarQuery(filter.ToXElement));
         events.Should().NotBeNull();
         events.OverallResult.Should().Be(ClientResult.Success);
     }
@@ -90,7 +89,7 @@ public class EventIntegrationTests
         updatedResponse.Event!.ICalEvent!.Summary.Should().Be($"Updated Event {uid}");
 
         // 5. Multiget query
-        var multigetResponse = await client.GetEventsAsync(defaultCal.Href, BodyHelper.CalendarMultiget([eventHref]));
+        var multigetResponse = await client.GetEventsAsync(defaultCal.Href, CalDAVPayloads.CalendarMultiget([eventHref]));
         multigetResponse.Count.Should().Be(1);
         multigetResponse[0].Event!.ICalEvent!.Summary.Should().Be($"Updated Event {uid}");
 

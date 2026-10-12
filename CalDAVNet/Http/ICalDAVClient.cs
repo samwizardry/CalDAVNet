@@ -53,7 +53,7 @@ public interface ICalDAVClient
     /// <summary>
     /// Creates a calendar.
     /// </summary>
-    /// <param name="href">Principal calendar home set.</param>
+    /// <param name="href">Target calendar href to create.</param>
     /// <param name="body"><see cref="BodyHelper.Mkcalendar(string, string, string?, string?)"/> body.</param>
     Task CreateCalendarAsync(string href, XDocument body, CancellationToken cancellationToken = default);
 

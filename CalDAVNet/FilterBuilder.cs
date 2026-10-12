@@ -19,6 +19,11 @@ public class FilterBuilder
         _vcalendar.Add(compFilter);
         return this;
     }
+
+    public FilterBuilder AddCompFilter(CompFilterBuilder compFilterBuilder)
+    {
+        return AddCompFilter(compFilterBuilder.ToXElement);
+    }
 }
 
 public class CompFilterBuilder

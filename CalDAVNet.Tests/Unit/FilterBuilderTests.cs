@@ -29,6 +29,18 @@ public class FilterBuilderTests
     }
 
     [Fact]
+    public void FilterBuilder_AddCompFilter_CompFilterBuilderOverload()
+    {
+        var compBuilder = new CompFilterBuilder(Constants.Comp.VTODO);
+        var filter = new FilterBuilder().AddCompFilter(compBuilder);
+
+        var vcalendar = filter.ToXElement.Element(XNames.CompFilter)!;
+        var vtodo = vcalendar.Element(XNames.CompFilter);
+        vtodo.Should().NotBeNull();
+        vtodo!.Attribute("name")!.Value.Should().Be(Constants.Comp.VTODO);
+    }
+
+    [Fact]
     public void CompFilterBuilder_AddTimeRange_FormatsUtcCorrectly()
     {
         var start = new DateTime(2026, 1, 15, 10, 30, 0, DateTimeKind.Utc);

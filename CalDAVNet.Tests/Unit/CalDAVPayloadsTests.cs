@@ -3,12 +3,12 @@ using FluentAssertions;
 
 namespace CalDAVNet.Tests.Unit;
 
-public class BodyHelperTests
+public class CalDAVPayloadsTests
 {
     [Fact]
     public void AllPropPropfind_CreatesValidXml()
     {
-        var doc = BodyHelper.AllPropPropfind();
+        var doc = CalDAVPayloads.AllPropPropfind();
 
         doc.Declaration.Should().NotBeNull();
         doc.Declaration!.Encoding.Should().Be("UTF-8");
@@ -20,7 +20,7 @@ public class BodyHelperTests
     [Fact]
     public void CurrentUserPrincipalPropfind_CreatesValidXml()
     {
-        var doc = BodyHelper.CurrentUserPrincipalPropfind();
+        var doc = CalDAVPayloads.CurrentUserPrincipalPropfind();
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Name.Should().Be(XNames.Propfind);
@@ -30,7 +30,7 @@ public class BodyHelperTests
     [Fact]
     public void Propfind_WithPropfindNames_AddsDirectChildren()
     {
-        var doc = BodyHelper.Propfind([XNames.ResourceType, XNames.GetCtag]);
+        var doc = CalDAVPayloads.Propfind([XNames.ResourceType, XNames.GetCtag]);
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Elements(XNames.ResourceType).Should().ContainSingle();
@@ -40,7 +40,7 @@ public class BodyHelperTests
     [Fact]
     public void Propfind_WithPropfindNamesAndPropNames_AddsDirectChildrenAndPropElement()
     {
-        var doc = BodyHelper.Propfind([XNames.ResourceType], [XNames.DisplayName, XNames.Comment]);
+        var doc = CalDAVPayloads.Propfind([XNames.ResourceType], [XNames.DisplayName, XNames.Comment]);
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Element(XNames.ResourceType).Should().NotBeNull();
@@ -53,7 +53,7 @@ public class BodyHelperTests
     [Fact]
     public void PropPropfind_AddsPropElementWithSpecifiedChildren()
     {
-        var doc = BodyHelper.PropPropfind([XNames.DisplayName, XNames.GetCtag]);
+        var doc = CalDAVPayloads.PropPropfind([XNames.DisplayName, XNames.GetCtag]);
 
         doc.Root.Should().NotBeNull();
         var prop = doc.Root!.Element(XNames.Prop);
@@ -65,7 +65,7 @@ public class BodyHelperTests
     [Fact]
     public void PropPropfind_EmptyList_DoesNotAddPropElement()
     {
-        var doc = BodyHelper.PropPropfind([]);
+        var doc = CalDAVPayloads.PropPropfind([]);
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Element(XNames.Prop).Should().BeNull();
@@ -74,7 +74,7 @@ public class BodyHelperTests
     [Fact]
     public void SyncCollection_WithSyncToken_CreatesValidXml()
     {
-        var doc = BodyHelper.SyncCollection("sync-token-123");
+        var doc = CalDAVPayloads.SyncCollection("sync-token-123");
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Name.Should().Be(XNames.SyncCollection);
@@ -86,7 +86,7 @@ public class BodyHelperTests
     [Fact]
     public void SyncCollection_WithoutSyncToken_CreatesEmptySyncTokenElement()
     {
-        var doc = BodyHelper.SyncCollection(null);
+        var doc = CalDAVPayloads.SyncCollection(null);
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Element(XNames.SyncToken)!.Value.Should().BeEmpty();
@@ -96,7 +96,7 @@ public class BodyHelperTests
     public void CalendarQuery_ContainsPropAndFilter()
     {
         var filter = new XElement(XNames.Filter, "filter-content");
-        var doc = BodyHelper.CalendarQuery(filter);
+        var doc = CalDAVPayloads.CalendarQuery(filter);
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Name.Should().Be(XNames.CalendarQuery);
@@ -110,7 +110,7 @@ public class BodyHelperTests
     [Fact]
     public void CalendarMultiget_SingleHref_CreatesValidXml()
     {
-        var doc = BodyHelper.CalendarMultiget("/calendar/event1.ics");
+        var doc = CalDAVPayloads.CalendarMultiget("/calendar/event1.ics");
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Name.Should().Be(XNames.CalendarMultiget);
@@ -127,7 +127,7 @@ public class BodyHelperTests
     public void CalendarMultiget_MultipleHrefs_CreatesValidXml()
     {
         string[] hrefs = ["/calendar/e1.ics", "/calendar/e2.ics", "/calendar/e3.ics"];
-        var doc = BodyHelper.CalendarMultiget(hrefs);
+        var doc = CalDAVPayloads.CalendarMultiget(hrefs);
 
         doc.Root.Should().NotBeNull();
         var hrefElements = doc.Root!.Elements(XNames.Href).Select(x => x.Value).ToList();
@@ -137,7 +137,7 @@ public class BodyHelperTests
     [Fact]
     public void Mkcalendar_WithAllParameters_CreatesValidXml()
     {
-        var doc = BodyHelper.Mkcalendar("Work Calendar", Constants.Comp.VEVENT, "Work related", "#00ff00");
+        var doc = CalDAVPayloads.Mkcalendar("Work Calendar", Constants.Comp.VEVENT, "Work related", "#00ff00");
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Name.Should().Be(XNames.Mkcalendar);
@@ -159,11 +159,21 @@ public class BodyHelperTests
     [Fact]
     public void Mkcalendar_WithoutOptionalParameters_ExcludesDescriptionAndColor()
     {
-        var doc = BodyHelper.Mkcalendar("Simple Calendar", Constants.Comp.VEVENT);
+        var doc = CalDAVPayloads.Mkcalendar("Simple Calendar", Constants.Comp.VEVENT);
 
         var prop = doc.Root!.Element(XNames.Set)!.Element(XNames.Prop)!;
         prop.Element(XNames.DisplayName)!.Value.Should().Be("Simple Calendar");
         prop.Element(XNames.CalendarDescription).Should().BeNull();
         prop.Element(XNames.CalendarColor).Should().BeNull();
     }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+    [Fact]
+    public void BodyHelper_BackwardCompatibility_CallsCalDAVPayloads()
+    {
+        var doc = BodyHelper.AllPropPropfind();
+        doc.Root!.Name.Should().Be(XNames.Propfind);
+        doc.Root.Element(XNames.AllProp).Should().NotBeNull();
+    }
+#pragma warning restore CS0618
 }
