@@ -179,7 +179,7 @@ public class CalDAVClientUnitTests
             Content = new StringContent(xml, Encoding.UTF8, "application/xml")
         });
 
-        var calendars = await client.GetCalendarsAsync("/calendars/alice/", CalDAVPayloads.AllPropPropfind());
+        var calendars = await client.GetCalendarsAsync("/calendars/alice/", CalDAVPayloads.AllProp());
 
         handler.LastRequest!.Headers.GetValues("Depth").Should().Contain("1");
         calendars.Count.Should().Be(1);
@@ -210,7 +210,7 @@ public class CalDAVClientUnitTests
             Content = new StringContent(xml, Encoding.UTF8, "application/xml")
         });
 
-        var result = await client.GetCalendarAsync("/calendars/alice/cal1/", CalDAVPayloads.AllPropPropfind());
+        var result = await client.GetCalendarAsync("/calendars/alice/cal1/", CalDAVPayloads.AllProp());
 
         result.IsSuccess.Should().BeTrue();
         result.Calendar!.DisplayName.Should().Be("Single Cal");
@@ -221,7 +221,7 @@ public class CalDAVClientUnitTests
     {
         var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.NotFound));
 
-        var result = await client.GetCalendarAsync("/missing/", CalDAVPayloads.AllPropPropfind());
+        var result = await client.GetCalendarAsync("/missing/", CalDAVPayloads.AllProp());
 
         result.IsSuccess.Should().BeFalse();
         result.ErrorCode.Should().Be(ClientError.NotFound);
@@ -400,7 +400,7 @@ public class CalDAVClientUnitTests
             Content = new StringContent(emptyXml, Encoding.UTF8, "application/xml")
         });
 
-        var response = await client.GetCalendarAsync("/cal/", CalDAVPayloads.AllPropPropfind());
+        var response = await client.GetCalendarAsync("/cal/", CalDAVPayloads.AllProp());
 
         response.IsSuccess.Should().BeFalse();
         response.ErrorCode.Should().Be(ClientError.NotFound);
@@ -412,7 +412,7 @@ public class CalDAVClientUnitTests
     {
         var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.InternalServerError));
 
-        var response = await client.GetCalendarAsync("/cal/", CalDAVPayloads.AllPropPropfind());
+        var response = await client.GetCalendarAsync("/cal/", CalDAVPayloads.AllProp());
 
         response.IsSuccess.Should().BeFalse();
         response.ErrorCode.Should().Be(ClientError.Failure);
@@ -447,7 +447,7 @@ public class CalDAVClientUnitTests
     {
         var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.NotFound));
 
-        var result = await client.GetEventsAsync("/cal/", CalDAVPayloads.AllPropPropfind());
+        var result = await client.GetEventsAsync("/cal/", CalDAVPayloads.AllProp());
 
         result.OverallResult.Should().Be(ClientResult.Error);
         result.Count.Should().Be(1);
@@ -459,7 +459,7 @@ public class CalDAVClientUnitTests
     {
         var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.InternalServerError));
 
-        var result = await client.GetCalendarsAsync("/cal/", CalDAVPayloads.AllPropPropfind());
+        var result = await client.GetCalendarsAsync("/cal/", CalDAVPayloads.AllProp());
 
         result.OverallResult.Should().Be(ClientResult.Error);
         result.Count.Should().Be(1);

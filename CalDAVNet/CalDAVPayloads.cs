@@ -15,34 +15,54 @@ public static class CalDAVPayloads
         return propfind;
     }
 
-    public static XDocument Propfind(IEnumerable<XName> propfindNames)
+    /// <summary>
+    /// Builds a standard PROPFIND payload requesting specific properties wrapped in &lt;D:prop&gt;.
+    /// </summary>
+    public static XDocument Propfind(IEnumerable<XName> propNames)
     {
+        var names = propNames as IList<XName> ?? propNames.ToList();
+        if (names.Count == 1 && names[0] == XNames.AllProp)
+        {
+            return AllProp();
+        }
+
         var propfind = PropfindTemplate();
 
-        if (propfindNames.Any())
+        if (names.Count > 0)
         {
-            foreach (var name in propfindNames)
+            var prop = new XElement(XNames.Prop);
+
+            foreach (var name in names)
             {
-                propfind.Add(new XElement(name));
+                prop.Add(new XElement(name));
             }
+
+            propfind.Add(prop);
         }
 
         return new XDocument(new XDeclaration("1.0", "UTF-8", null), propfind);
     }
 
-    public static XDocument Propfind(IEnumerable<XName> propfindNames, IEnumerable<XName> propNames)
+    /// <summary>
+    /// Builds a standard PROPFIND payload requesting specific properties wrapped in &lt;D:prop&gt;.
+    /// </summary>
+    public static XDocument Propfind(params XName[] propNames)
+        => Propfind((IEnumerable<XName>)propNames);
+
+    /// <summary>
+    /// Builds a PROPFIND payload with custom root elements directly under &lt;D:propfind&gt;,
+    /// and optional properties wrapped in &lt;D:prop&gt;.
+    /// </summary>
+    public static XDocument CustomPropfind(IEnumerable<XName> rootElements, IEnumerable<XName>? propNames = null)
     {
         var propfind = PropfindTemplate();
 
-        if (propfindNames.Any())
+        foreach (var name in rootElements)
         {
-            foreach (var name in propfindNames)
-            {
-                propfind.Add(new XElement(name));
-            }
+            propfind.Add(new XElement(name));
         }
 
-        if (propNames.Any())
+        if (propNames != null && propNames.Any())
         {
             var prop = new XElement(XNames.Prop);
 
@@ -57,26 +77,10 @@ public static class CalDAVPayloads
         return new XDocument(new XDeclaration("1.0", "UTF-8", null), propfind);
     }
 
-    public static XDocument PropPropfind(IEnumerable<XName> propNames)
-    {
-        var propfind = PropfindTemplate();
-
-        if (propNames.Any())
-        {
-            var prop = new XElement(XNames.Prop);
-
-            foreach (var name in propNames)
-            {
-                prop.Add(new XElement(name));
-            }
-
-            propfind.Add(prop);
-        }
-
-        return new XDocument(new XDeclaration("1.0", "UTF-8", null), propfind);
-    }
-
-    public static XDocument AllPropPropfind()
+    /// <summary>
+    /// Builds a PROPFIND payload requesting all properties (&lt;D:allprop/&gt;).
+    /// </summary>
+    public static XDocument AllProp()
     {
         var propfind = new XElement(XNames.Propfind,
             new XAttribute(XNamespace.Xmlns + Constants.DAV.Prefix, Constants.DAV.Namespace),
@@ -85,7 +89,10 @@ public static class CalDAVPayloads
         return new XDocument(new XDeclaration("1.0", "UTF-8", null), propfind);
     }
 
-    public static XDocument CurrentUserPrincipalPropfind()
+    /// <summary>
+    /// Builds a PROPFIND payload requesting the current user principal (&lt;D:current-user-principal/&gt;).
+    /// </summary>
+    public static XDocument CurrentUserPrincipal()
     {
         var propfind = new XElement(XNames.Propfind,
             new XAttribute(XNamespace.Xmlns + Constants.DAV.Prefix, Constants.DAV.Namespace),

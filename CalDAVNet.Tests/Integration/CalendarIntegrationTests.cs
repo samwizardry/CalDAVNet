@@ -42,7 +42,7 @@ public class CalendarIntegrationTests
         var principal = await client.GetPrincipalAsync(upn.PrincipalName!);
 
         var calendars = await client.GetCalendarsAsync(principal.Principal!.CalendarHomeSet!,
-            CalDAVPayloads.Propfind([XNames.AllProp]));
+            CalDAVPayloads.AllProp());
         var firstCal = calendars.First(c => c.IsSuccess).Calendar!;
 
         var singleCalResponse = await client.GetCalendarAsync(firstCal.Href,

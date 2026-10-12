@@ -38,7 +38,7 @@ public interface ICalDAVClient
     /// Retrieves a collection of calendars.
     /// </summary>
     /// <param name="href">Principal calendar home set.</param>
-    /// <param name="body"><see cref="CalDAVPayloads.PropPropfind(IEnumerable{XName})"/> body.</param>
+    /// <param name="body"><see cref="CalDAVPayloads.Propfind(IEnumerable{XName})"/> body.</param>
     /// <exception cref="HttpRequestException"></exception>
     Task<ClientResponseCollection<GetCalendarResponse>> GetCalendarsAsync(string href, XDocument body, CancellationToken cancellationToken = default);
 
@@ -46,7 +46,7 @@ public interface ICalDAVClient
     /// Retrieves a calendar.
     /// </summary>
     /// <param name="href">Calendar href.</param>
-    /// <param name="body"><see cref="CalDAVPayloads.PropPropfind(IEnumerable{XName})"/> body.</param>
+    /// <param name="body"><see cref="CalDAVPayloads.Propfind(IEnumerable{XName})"/> body.</param>
     /// <exception cref="HttpRequestException"></exception>
     Task<GetCalendarResponse> GetCalendarAsync(string href, XDocument body, CancellationToken cancellationToken = default);
 

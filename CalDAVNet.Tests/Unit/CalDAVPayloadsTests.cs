@@ -6,9 +6,9 @@ namespace CalDAVNet.Tests.Unit;
 public class CalDAVPayloadsTests
 {
     [Fact]
-    public void AllPropPropfind_CreatesValidXml()
+    public void AllProp_CreatesValidXml()
     {
-        var doc = CalDAVPayloads.AllPropPropfind();
+        var doc = CalDAVPayloads.AllProp();
 
         doc.Declaration.Should().NotBeNull();
         doc.Declaration!.Encoding.Should().Be("UTF-8");
@@ -18,9 +18,9 @@ public class CalDAVPayloadsTests
     }
 
     [Fact]
-    public void CurrentUserPrincipalPropfind_CreatesValidXml()
+    public void CurrentUserPrincipal_CreatesValidXml()
     {
-        var doc = CalDAVPayloads.CurrentUserPrincipalPropfind();
+        var doc = CalDAVPayloads.CurrentUserPrincipal();
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Name.Should().Be(XNames.Propfind);
@@ -28,19 +28,51 @@ public class CalDAVPayloadsTests
     }
 
     [Fact]
-    public void Propfind_WithPropfindNames_AddsDirectChildren()
+    public void Propfind_AddsPropElementWithSpecifiedChildren()
     {
-        var doc = CalDAVPayloads.Propfind([XNames.ResourceType, XNames.GetCtag]);
+        var doc = CalDAVPayloads.Propfind([XNames.DisplayName, XNames.GetCtag]);
 
         doc.Root.Should().NotBeNull();
-        doc.Root!.Elements(XNames.ResourceType).Should().ContainSingle();
-        doc.Root.Elements(XNames.GetCtag).Should().ContainSingle();
+        var prop = doc.Root!.Element(XNames.Prop);
+        prop.Should().NotBeNull();
+        prop!.Element(XNames.DisplayName).Should().NotBeNull();
+        prop.Element(XNames.GetCtag).Should().NotBeNull();
     }
 
     [Fact]
-    public void Propfind_WithPropfindNamesAndPropNames_AddsDirectChildrenAndPropElement()
+    public void Propfind_Params_AddsPropElementWithSpecifiedChildren()
     {
-        var doc = CalDAVPayloads.Propfind([XNames.ResourceType], [XNames.DisplayName, XNames.Comment]);
+        var doc = CalDAVPayloads.Propfind(XNames.DisplayName, XNames.GetCtag);
+
+        doc.Root.Should().NotBeNull();
+        var prop = doc.Root!.Element(XNames.Prop);
+        prop.Should().NotBeNull();
+        prop!.Element(XNames.DisplayName).Should().NotBeNull();
+        prop.Element(XNames.GetCtag).Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Propfind_WithAllProp_ReturnsAllPropXml()
+    {
+        var doc = CalDAVPayloads.Propfind([XNames.AllProp]);
+
+        doc.Root.Should().NotBeNull();
+        doc.Root!.Element(XNames.AllProp).Should().NotBeNull();
+    }
+
+    [Fact]
+    public void Propfind_EmptyList_DoesNotAddPropElement()
+    {
+        var doc = CalDAVPayloads.Propfind([]);
+
+        doc.Root.Should().NotBeNull();
+        doc.Root!.Element(XNames.Prop).Should().BeNull();
+    }
+
+    [Fact]
+    public void CustomPropfind_WithRootElementsAndPropNames_AddsBoth()
+    {
+        var doc = CalDAVPayloads.CustomPropfind([XNames.ResourceType], [XNames.DisplayName, XNames.Comment]);
 
         doc.Root.Should().NotBeNull();
         doc.Root!.Element(XNames.ResourceType).Should().NotBeNull();
@@ -51,24 +83,13 @@ public class CalDAVPayloadsTests
     }
 
     [Fact]
-    public void PropPropfind_AddsPropElementWithSpecifiedChildren()
+    public void CustomPropfind_WithRootElementsOnly_AddsDirectChildren()
     {
-        var doc = CalDAVPayloads.PropPropfind([XNames.DisplayName, XNames.GetCtag]);
+        var doc = CalDAVPayloads.CustomPropfind([XNames.ResourceType, XNames.GetCtag]);
 
         doc.Root.Should().NotBeNull();
-        var prop = doc.Root!.Element(XNames.Prop);
-        prop.Should().NotBeNull();
-        prop!.Element(XNames.DisplayName).Should().NotBeNull();
-        prop.Element(XNames.GetCtag).Should().NotBeNull();
-    }
-
-    [Fact]
-    public void PropPropfind_EmptyList_DoesNotAddPropElement()
-    {
-        var doc = CalDAVPayloads.PropPropfind([]);
-
-        doc.Root.Should().NotBeNull();
-        doc.Root!.Element(XNames.Prop).Should().BeNull();
+        doc.Root!.Elements(XNames.ResourceType).Should().ContainSingle();
+        doc.Root.Elements(XNames.GetCtag).Should().ContainSingle();
     }
 
     [Fact]

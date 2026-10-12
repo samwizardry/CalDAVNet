@@ -35,7 +35,7 @@ public class CalDAVClient : ICalDAVClient
     {
         var request = new HttpRequestMessage(ICalDAVClient.Propfind, "")
         {
-            Content = CalDAVPayloads.CurrentUserPrincipalPropfind().ToStringContent()
+            Content = CalDAVPayloads.CurrentUserPrincipal().ToStringContent()
         }
         .WithDepth(0)
         .WithPrefer("return-minimal");
@@ -54,7 +54,7 @@ public class CalDAVClient : ICalDAVClient
 
     public async Task<GetPrincipalResponse> GetPrincipalAsync(string upn, CancellationToken cancellationToken = default)
     {
-        var body = CalDAVPayloads.AllPropPropfind();
+        var body = CalDAVPayloads.AllProp();
 
         var request = new HttpRequestMessage(ICalDAVClient.Propfind, upn)
         {
