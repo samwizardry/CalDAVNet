@@ -23,4 +23,17 @@ public sealed class GetCalendarResponse : ClientResponse
             ErrorMessage = ResponseMappings.StatusCodeToErrorMessage(404)
         };
     }
+
+    internal static GetCalendarResponse FromException(string href, Exception ex)
+    {
+        var statusCode = ex is HttpRequestException httpEx ? (int?)httpEx.StatusCode ?? 500 : 500;
+        return new GetCalendarResponse
+        {
+            Href = href,
+            Result = ClientResult.Error,
+            ErrorCode = ResponseMappings.StatusCodeToClientError(statusCode),
+            ErrorMessage = ResponseMappings.StatusCodeToErrorMessage(statusCode) ?? ex.Message,
+            Exception = ex
+        };
+    }
 }

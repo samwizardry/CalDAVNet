@@ -40,9 +40,16 @@ public class CalDAVClient : ICalDAVClient
         .WithDepth(0)
         .WithPrefer("return-minimal");
 
-        var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
-        var item = response.Single();
-        return item.ToGetPrincipalNameResponse();
+        try
+        {
+            var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
+            var item = response.FirstOrDefault();
+            return item is not null ? item.ToGetPrincipalNameResponse() : GetPrincipalNameResponse.NotFound("");
+        }
+        catch (HttpRequestException ex)
+        {
+            return GetPrincipalNameResponse.FromException("", ex);
+        }
     }
 
     public async Task<GetPrincipalResponse> GetPrincipalAsync(string upn, CancellationToken cancellationToken = default)
@@ -56,9 +63,16 @@ public class CalDAVClient : ICalDAVClient
         .WithDepth(0)
         .WithPrefer("return-minimal");
 
-        var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
-        var item = response.Single();
-        return item.ToGetPrincipalResponse();
+        try
+        {
+            var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
+            var item = response.FirstOrDefault();
+            return item is not null ? item.ToGetPrincipalResponse() : GetPrincipalResponse.NotFound(upn);
+        }
+        catch (HttpRequestException ex)
+        {
+            return GetPrincipalResponse.FromException(upn, ex);
+        }
     }
 
     public async Task<ClientResponseCollection<GetCalendarResponse>> GetCalendarsAsync(string href, XDocument body, CancellationToken cancellationToken = default)
@@ -70,21 +84,30 @@ public class CalDAVClient : ICalDAVClient
         .WithDepth(1)
         .WithPrefer("return-minimal");
 
-        var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
-
-        ClientResponseCollection<GetCalendarResponse> result = [];
-
-        foreach (var item in response)
+        try
         {
-            if (!item.IsCalendar)
+            var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
+
+            ClientResponseCollection<GetCalendarResponse> result = [];
+
+            foreach (var item in response)
             {
-                continue;
+                if (!item.IsCalendar)
+                {
+                    continue;
+                }
+
+                result.Add(item.ToGetCalendarResponse());
             }
 
-            result.Add(item.ToGetCalendarResponse());
+            return result;
         }
-
-        return result;
+        catch (HttpRequestException ex)
+        {
+            ClientResponseCollection<GetCalendarResponse> result = [];
+            result.Add(GetCalendarResponse.FromException(href, ex));
+            return result;
+        }
     }
 
     public async Task<GetCalendarResponse> GetCalendarAsync(string href, XDocument body, CancellationToken cancellationToken = default)
@@ -99,12 +122,12 @@ public class CalDAVClient : ICalDAVClient
         try
         {
             var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
-            var item = response.Where(x => x.IsCalendar).Single();
-            return item.ToGetCalendarResponse();
+            var item = response.FirstOrDefault(x => x.IsCalendar);
+            return item is not null ? item.ToGetCalendarResponse() : GetCalendarResponse.NotFound(href);
         }
-        catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+        catch (HttpRequestException ex)
         {
-            return GetCalendarResponse.NotFound(href);
+            return GetCalendarResponse.FromException(href, ex);
         }
     }
 
@@ -140,16 +163,25 @@ public class CalDAVClient : ICalDAVClient
         .WithDepth(0)
         .WithPrefer("return-minimal");
 
-        var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
-
-        ClientResponseCollection<GetEventResponse> result = [];
-
-        foreach (var item in response)
+        try
         {
-            result.Add(item.ToGetEventResponse());
-        }
+            var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
 
-        return result;
+            ClientResponseCollection<GetEventResponse> result = [];
+
+            foreach (var item in response)
+            {
+                result.Add(item.ToGetEventResponse());
+            }
+
+            return result;
+        }
+        catch (HttpRequestException ex)
+        {
+            ClientResponseCollection<GetEventResponse> result = [];
+            result.Add(GetEventResponse.FromException(href, ex));
+            return result;
+        }
     }
 
     public async Task<GetEventResponse> GetEventAsync(string href, XDocument body,
@@ -162,14 +194,36 @@ public class CalDAVClient : ICalDAVClient
         .WithDepth(0)
         .WithPrefer("return-minimal");
 
-        var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
-        var item = response.Single();
-        return item.ToGetEventResponse();
+        try
+        {
+            var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
+            var item = response.FirstOrDefault();
+            return item is not null ? item.ToGetEventResponse() : GetEventResponse.NotFound(href);
+        }
+        catch (HttpRequestException ex)
+        {
+            return GetEventResponse.FromException(href, ex);
+        }
     }
 
-    public Task<GetEventResponse> GetEventAsync(string calendarHref, string eventHref,
+    public async Task<GetEventResponse> GetEventAsync(string calendarHref, string eventHref,
         CancellationToken cancellationToken = default)
-        => GetEventAsync(calendarHref, CalDAVPayloads.CalendarMultiget(eventHref), cancellationToken);
+    {
+        var response = await GetEventAsync(calendarHref, CalDAVPayloads.CalendarMultiget(eventHref), cancellationToken).ConfigureAwait(false);
+        if (!response.IsSuccess && response.Href == calendarHref)
+        {
+            return new GetEventResponse
+            {
+                Href = eventHref,
+                Result = response.Result,
+                ErrorCode = response.ErrorCode,
+                ErrorMessage = response.ErrorMessage,
+                Exception = response.Exception
+            };
+        }
+
+        return response;
+    }
 
     public Task CreateEventAsync(string href, string body, CancellationToken cancellationToken = default)
     {

@@ -351,6 +351,122 @@ public class CalDAVClientUnitTests
     }
 
     [Fact]
+    public async Task GetEventAsync_WhenHttp404_ReturnsNotFoundResponse()
+    {
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.NotFound));
+
+        var response = await client.GetEventAsync("/cal/", "/cal/missing.ics");
+
+        response.IsSuccess.Should().BeFalse();
+        response.ErrorCode.Should().Be(ClientError.NotFound);
+        response.Href.Should().Be("/cal/missing.ics");
+        response.Event.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetEventAsync_WhenEmptyMultistatus_ReturnsNotFoundResponse()
+    {
+        var emptyXml = """<D:multistatus xmlns:D="DAV:" />""";
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.MultiStatus)
+        {
+            Content = new StringContent(emptyXml, Encoding.UTF8, "application/xml")
+        });
+
+        var response = await client.GetEventAsync("/cal/", "/cal/missing.ics");
+
+        response.IsSuccess.Should().BeFalse();
+        response.ErrorCode.Should().Be(ClientError.NotFound);
+        response.Href.Should().Be("/cal/missing.ics");
+    }
+
+    [Fact]
+    public async Task GetEventAsync_WhenHttp500_ReturnsFailureResponse()
+    {
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+        var response = await client.GetEventAsync("/cal/", "/cal/error.ics");
+
+        response.IsSuccess.Should().BeFalse();
+        response.ErrorCode.Should().Be(ClientError.Failure);
+        response.Exception.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task GetCalendarAsync_WhenEmptyMultistatus_ReturnsNotFoundResponse()
+    {
+        var emptyXml = """<D:multistatus xmlns:D="DAV:" />""";
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.MultiStatus)
+        {
+            Content = new StringContent(emptyXml, Encoding.UTF8, "application/xml")
+        });
+
+        var response = await client.GetCalendarAsync("/cal/", CalDAVPayloads.AllPropPropfind());
+
+        response.IsSuccess.Should().BeFalse();
+        response.ErrorCode.Should().Be(ClientError.NotFound);
+        response.Href.Should().Be("/cal/");
+    }
+
+    [Fact]
+    public async Task GetCalendarAsync_WhenHttp500_ReturnsFailureResponse()
+    {
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+        var response = await client.GetCalendarAsync("/cal/", CalDAVPayloads.AllPropPropfind());
+
+        response.IsSuccess.Should().BeFalse();
+        response.ErrorCode.Should().Be(ClientError.Failure);
+        response.Exception.Should().NotBeNull();
+    }
+
+    [Fact]
+    public async Task GetPrincipalNameAsync_WhenHttp404_ReturnsNotFoundResponse()
+    {
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.NotFound));
+
+        var response = await client.GetPrincipalNameAsync();
+
+        response.IsSuccess.Should().BeFalse();
+        response.ErrorCode.Should().Be(ClientError.NotFound);
+    }
+
+    [Fact]
+    public async Task GetPrincipalAsync_WhenHttp404_ReturnsNotFoundResponse()
+    {
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.NotFound));
+
+        var response = await client.GetPrincipalAsync("/missing/user/");
+
+        response.IsSuccess.Should().BeFalse();
+        response.ErrorCode.Should().Be(ClientError.NotFound);
+        response.Href.Should().Be("/missing/user/");
+    }
+
+    [Fact]
+    public async Task GetEventsAsync_WhenHttpError_ReturnsCollectionWithErrorResponse()
+    {
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.NotFound));
+
+        var result = await client.GetEventsAsync("/cal/", CalDAVPayloads.AllPropPropfind());
+
+        result.OverallResult.Should().Be(ClientResult.Error);
+        result.Count.Should().Be(1);
+        result[0].ErrorCode.Should().Be(ClientError.NotFound);
+    }
+
+    [Fact]
+    public async Task GetCalendarsAsync_WhenHttpError_ReturnsCollectionWithErrorResponse()
+    {
+        var (client, _) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.InternalServerError));
+
+        var result = await client.GetCalendarsAsync("/cal/", CalDAVPayloads.AllPropPropfind());
+
+        result.OverallResult.Should().Be(ClientResult.Error);
+        result.Count.Should().Be(1);
+        result[0].ErrorCode.Should().Be(ClientError.Failure);
+    }
+
+    [Fact]
     public async Task CreateEventAsync_SendsPutWithTextCalendar()
     {
         var (client, handler) = CreateMockClient(req => new HttpResponseMessage(HttpStatusCode.Created));
