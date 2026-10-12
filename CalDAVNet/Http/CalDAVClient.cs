@@ -50,8 +50,11 @@ public class CalDAVClient : ICalDAVClient
         var body = BodyHelper.AllPropPropfind();
 
         var request = new HttpRequestMessage(ICalDAVClient.Propfind, upn)
-            .WithDepth(0)
-            .WithPrefer("return-minimal");
+        {
+            Content = body.ToStringContent()
+        }
+        .WithDepth(0)
+        .WithPrefer("return-minimal");
 
         var response = await SendForMultistatusAsync(request, cancellationToken).ConfigureAwait(false);
         var item = response.Single();

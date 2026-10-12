@@ -1,5 +1,4 @@
 <Solution>
   <Project Path="CalDAVNet.Tests/CalDAVNet.Tests.csproj" />
   <Project Path="CalDAVNet/CalDAVNet.csproj" />
-  <Project Path="Sandbox/Sandbox.csproj" />
 </Solution>
