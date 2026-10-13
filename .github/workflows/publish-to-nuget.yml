@@ -8,6 +8,9 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x' # set this to the dotnet version to use (e.g. '2.1.x', '3.1.x', '5.0.x')
+  CALDAVNET_BASEADDRESS: ${{ secrets.CALDAVNET_BASEADDRESS }}
+  CALDAVNET_USERNAME: ${{ secrets.CALDAVNET_USERNAME }}
+  CALDAVNET_PASSWORD: ${{ secrets.CALDAVNET_PASSWORD }}
 
 jobs:
   build-and-publish:
@@ -29,14 +32,20 @@ jobs:
       - name: 'Restore'
         run: dotnet restore
 
+      - name: 'Build'
+        run: dotnet build --configuration Release --no-restore
+
+      - name: 'Test'
+        run: dotnet test --configuration Release --no-build
+
       - name: 'Pack'
-        run: dotnet pack --configuration Release --no-restore --output ./artifacts
+        run: dotnet pack --configuration Release --no-build --output ./artifacts
 
       - name: 'NuGet login (OIDC → temp API key)'
         uses: NuGet/login@v1
         id: login
         with:
-          user: itagiev
+          user: ${{ secrets.NUGET_USER }}
 
       - name: 'NuGet push'
         run: dotnet nuget push artifacts/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
