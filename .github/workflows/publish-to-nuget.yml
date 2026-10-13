@@ -1,7 +1,6 @@
 name: Publish to NuGet
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - 'v*.*.*'
@@ -29,17 +28,23 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      - name: 'Get version from tag'
+        id: get_version
+        run: |
+          tag="$GITHUB_REF_NAME"
+          echo "version=${tag:1}" >> $GITHUB_OUTPUT
+
       - name: 'Restore'
         run: dotnet restore
 
       - name: 'Build'
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build -p:Version=${{ steps.get_version.outputs.version }} --configuration Release --no-restore
 
       - name: 'Test'
         run: dotnet test --configuration Release --no-build
 
       - name: 'Pack'
-        run: dotnet pack --configuration Release --no-build --output ./artifacts
+        run: dotnet pack -p:PackageVersion=${{ steps.get_version.outputs.version }} --configuration Release --no-build --output ./artifacts 
 
       - name: 'NuGet login (OIDC → temp API key)'
         uses: NuGet/login@v1

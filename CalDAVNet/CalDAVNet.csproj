@@ -7,7 +7,6 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
 
     <!-- Package Metadata -->
-    <Version>1.1.2</Version>
     <Authors>samwizardry</Authors>
     <Product>CalDAVNet</Product>
     <PackageId>CalDAVNet</PackageId>
