@@ -8,10 +8,10 @@
 
     <!-- Package Metadata -->
     <Authors>samwizardry</Authors>
-    <Product>CalDAVNet</Product>
-    <PackageId>CalDAVNet</PackageId>
-    <Title>CalDAVNet</Title>
-    <Description>A lightweight, asynchronous .NET client library for communicating with CalDAV servers (Yandex, Google, Nextcloud, Apple, etc.) compliant with CalDAV (RFC 4791), WebDAV (RFC 4918), and iCalendar (RFC 5545).</Description>
+    <Product>Semisoft.CalDAVNet</Product>
+    <PackageId>Semisoft.CalDAVNet</PackageId>
+    <Title>Semisoft.CalDAVNet</Title>
+    <Description>.NET client library for communicating with CalDAV servers compliant with CalDAV (RFC 4791), WebDAV (RFC 4918), and iCalendar (RFC 5545).</Description>
     <PackageTags>caldav;calendar;webdav;icalendar;sync;events;aspnetcore</PackageTags>
     <PackageProjectUrl>https://github.com/samwizardry/CalDAVNet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/samwizardry/CalDAVNet</RepositoryUrl>

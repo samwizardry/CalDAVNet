@@ -1,13 +1,17 @@
 # CalDAVNet
 
-A lightweight, asynchronous .NET client library for communicating with CalDAV servers (Yandex, Google, Nextcloud, Apple, etc.) compliant with CalDAV (RFC 4791), WebDAV (RFC 4918), and iCalendar (RFC 5545).
+[![NuGet Version](https://img.shields.io/nuget/v/Semisoft.LdapHelper.svg)](https://www.nuget.org/packages/Semisoft.LdapHelper/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/)
+
+.NET client library for communicating with CalDAV servers compliant with CalDAV (RFC 4791), WebDAV (RFC 4918), and iCalendar (RFC 5545).
 
 ---
 
 ## Features
 
 - **Calendars & Events**: Discover calendar collections, query events, and perform CRUD operations on `.ics` resources.
-- **Recurring Events**: Full support for master events (`MasterEvent`), modified occurrences (`RecurrenceExceptions`), and date-range expansion (`GetOccurrences`).
+- **Recurring Events**: Support for master events (`MasterEvent`), modified occurrences (`RecurrenceExceptions`), and date-range expansion (`GetOccurrences`).
 - **WebDAV Sync**: Incremental collection synchronization using WebDAV sync tokens (`SyncCalendarItemsAsync`).
 - **ASP.NET Core Integration**:
   - `AddCalDAVClient` registration backed by `IHttpClientFactory` connection pooling.
@@ -34,8 +38,8 @@ dotnet test
 
 To run integration tests against a live CalDAV server, create a `.env` file in the `CalDAVNet.Tests` directory:
 ```env
-CALDAVNET_BASEADDRESS=https://caldav.yandex.ru/
-CALDAVNET_USERNAME=your_username@yandex.ru
+CALDAVNET_BASEADDRESS=https://caldav.host.ru/
+CALDAVNET_USERNAME=your_username@host.ru
 CALDAVNET_PASSWORD=your_app_password
 ```
 
@@ -53,7 +57,7 @@ using CalDAVNet.Http;
 
 var httpClient = new HttpClient
 {
-    BaseAddress = new Uri("https://caldav.yandex.ru/")
+    BaseAddress = new Uri("https://caldav.host.ru/")
 };
 
 var auth = Convert.ToBase64String(Encoding.UTF8.GetBytes("login:password"));
@@ -83,8 +87,8 @@ foreach (var cal in calendars)
 ```csharp
 builder.Services.AddCalDAVClient(options =>
 {
-    options.SetBaseAddress("https://caldav.yandex.ru/");
-    options.SetCredentials("my_user@yandex.ru", "app_password");
+    options.SetBaseAddress("https://caldav.host.ru/");
+    options.SetCredentials("my_user@host.ru", "app_password");
 });
 ```
 
@@ -109,7 +113,7 @@ When users in your application authenticate with their own separate CalDAV crede
 // Register server base address in Program.cs:
 builder.Services.AddCalDAVClient(options =>
 {
-    options.SetBaseAddress("https://caldav.yandex.ru/");
+    options.SetBaseAddress("https://caldav.host.ru/");
 });
 
 // Inject ICalDAVClientFactory into your service:
